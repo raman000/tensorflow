@@ -1,0 +1,67 @@
+# Sample experiment config for CPU-only training
+# Path: configs/experiment.yaml
+
+dataset:
+  name: example_dataset
+  path: /path/to/dataset
+  format: image_folder  # options: image_folder, tfrecord, csv
+  train_split: train
+  val_split: val
+
+training:
+  seed: 42
+  use_gpu: false
+  num_workers: 4
+  batch_size: 32
+  epochs: 10
+  steps_per_epoch: null  # set to null to use full dataset
+  validation_steps: null
+
+model:
+  name: simple_cnn
+  input_shape: [128, 128, 3]
+  num_classes: 10
+  dropout: 0.5
+
+optimizer:
+  type: adam
+  lr: 0.001
+  weight_decay: 0.0
+  clip_norm: null
+
+loss:
+  type: sparse_categorical_crossentropy
+
+metrics:
+  - accuracy
+  - top_k_categorical_accuracy
+
+callbacks:
+  checkpoint:
+    enabled: true
+    monitor: val_loss
+    mode: min
+    save_best_only: true
+    save_weights_only: false
+    dir: outputs/checkpoints
+  tensorboard:
+    enabled: true
+    log_dir: outputs/tensorboard
+  early_stopping:
+    enabled: true
+    monitor: val_loss
+    patience: 5
+
+augmentation:
+  enabled: true
+  horizontal_flip: true
+  rotation: 10
+  brightness: 0.1
+
+logging:
+  level: INFO
+  save_config: true
+  output_dir: outputs/exp_cpu
+
+# Example usage notes (not parsed by code):
+# python -m scripts.train --config configs/experiment.yaml --data_dir /path/to/dataset --output_dir outputs/exp_cpu
